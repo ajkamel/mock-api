@@ -1,0 +1,10 @@
+{
+    "meta": {},
+    "data": [
+      {
+        "currency_id": 1,
+        "currency_iso_code": 10,
+        "available": 8
+      }
+    ]
+  }
