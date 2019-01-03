@@ -1,0 +1,415 @@
+FORMAT: 1A
+
+# Bayside API Blueprint
+
+A RESTful API for SoulCycle classes and instructors data.
+
+
+
+# Group Health
+
+Utility endpoints the represent health checks.
+
+## Ready [/ready]
+
+The ready endpoint provides information about connected services and can be used to determine if the service is considered "ready". It can be used by container schedulers to check if the service is ready to accept traffic.
+
+### Check the readiness of the application [GET]
+
++ Response 200 (application/json)
+  + Attributes (Ready Success)
+
++ Response 500 (application/json)
+  + Attributes (Ready Failure)
+
+
+## Health [/health]
+
+The health endpoint is similar to the ready endpoint in that it provides information about the health of the service, but skips the connected service checks. It can be used by container schedulers to check if the service is "reachable".
+
+### Check the health of the application [GET]
+
++ Response 200 (application/json)
+  + Attributes (Health Success)
+
+
+## Version [/version]
+
+The version endpoint outputs the current **release version** of the application, as defined by an environment variable. This variable is present within the application's Dockerfile, and as normally updated as part of the release process.
+
+### Get the version of the application [GET]
+
++ Response 200 (application/json)
+  + Attributes (Version Success)
+
+
+
+# Group Classes
+
+Resources that represent a collection of classses, and information related to each class.
+
+
+## Classes Collection [/classes]
+
+A collection of class resources.
+
+### List all classes [GET/classes{?ids,regions,studios,from,until,limit,offset}]
+
++ Parameters
+  + `ids`: `UUID-1,UUID-2,UUID-4` (string, optional) - A comma-separated list of class IDs to limit results to
+  + `regions`: `UUID-1,UUID-2,UUID-4` (string, optional) - A comma-separated list of region IDs to limit results to
+  + `studios`: `UUID-1,UUID-2,UUID-4` (string, optional) - A comma-separated list of studio IDs to limit results to
+  + `from`: `2018-03-18T17:17:40.016Z` (string, optional) - Timestamp (in UTC) from the class last updated date
+  + `until`: `2018-03-18T17:17:40.016Z` (string, optional) - Timestamp (in UTC) until the class last updated date
+  + `limit`: 5 (number, optional) - The maximum amount of resources to return in the response
+      + Default: `10`
+  + `offset`: 20 (number, optional) - The number of resources to offset when querying for resources, used for pagination
+      + Default: `0`
+
++ Response 200 (application/json)
+  + Attributes (Class Get Collection)
+
++ Response 500 (application/json)
+  + Attributes (Internal Server Error)
+
+### Create a new class [POST]
+
++ Response 405 (application/json)
+  + Attributes (Method Not Allowed)
+
+
+## Class Resource [/classes/{id}]
+
+A single class resource.
+
++ Parameters
+  + `id`: `c3aa832f-ee96-4c48-9104-cf6d61f2dd93` (string, required) - The ID of the class (in UUID v4)
+
+### Get single class resource [GET]
+
++ Response 200 (application/json)
+  + Attributes (Class Get Resource)
+
++ Response 404 (application/json)
+  + Attributes (Not Found)
+
++ Response 500 (application/json)
+  + Attributes (Internal Server Error)
+
+### Update a single class resource [PUT]
+
++ Response 405 (application/json)
+  + Attributes (Method Not Allowed)
+
+### Delete a single class resource [DELETE]
+
++ Response 405 (application/json)
+  + Attributes (Method Not Allowed)
+
+
+
+# Group Class Types
+
+Resources that represent class types as a collection that includes information related to each class type.
+
+## Class Type Collection [/class-types]
+
+A collection of class type resources.
+
+### List all class types [GET/class-types{?ids,limit,offset}]
+
++ Parameters
+  + `ids`: `UUID-1,UUID-2,UUID-4` (string, optional) - A comma-separated list of class type IDs to limit results to
+  + `limit`: 5 (number, optional) - The maximum amount of resources to return in the response
+      + Default: `10`
+  + `offset`: 20 (number, optional) - The number of resources to offset when querying for resources, used for pagination
+      + Default: `0`
+
++ Response 200 (application/json)
+  + Attributes (Class Type Get Collection)
+
++ Response 500 (application/json)
+  + Attributes (Internal Server Error)
+
+### Create a new class type [POST]
+
++ Response 405 (application/json)
+  + Attributes (Method Not Allowed)
+
+
+## Class Type Resource [/class-types/{id}]
+
+A single class type resource.
+
++ Parameters
+  + `id`: `c3aa832f-ee96-4c48-9104-cf6d61f2dd93` (string, required) - The ID of the class type (in UUID v4)
+
+### Get single class type resource [GET]
+
++ Response 200 (application/json)
+  + Attributes (Class Type Get Resource)
+
++ Response 404 (application/json)
+  + Attributes (Not Found)
+
++ Response 500 (application/json)
+  + Attributes (Internal Server Error)
+
+### Update single class type resource [PUT]
+
++ Response 405 (application/json)
+  + Attributes (Method Not Allowed)
+
+### Delete single class type resource [DELETE]
+
++ Response 405 (application/json)
+  + Attributes (Method Not Allowed)
+
+
+
+# Group Instructors
+
+Resources that represent instructors as a collection that includes information related to each instructor.
+
+## Instructor Collection [/instructors]
+
+A collection of instructor resources.
+
+### List all instructors [GET/instructors{?ids,limit,offset}]
+
++ Parameters
+  + `ids`: `UUID-1,UUID-2,UUID-4` (string, optional) - A comma-separated list of instructor IDs to limit results to
+  + `limit`: 5 (number, optional) - The maximum amount of resources to return in the response
+      + Default: `10`
+  + `offset`: 20 (number, optional) - The number of resources to offset when querying for resources, used for pagination
+      + Default: `0`
+
++ Response 200 (application/json)
+  + Attributes (Instructor Get Collection)
+
++ Response 500 (application/json)
+  + Attributes (Internal Server Error)
+
+### Create a new instuctor [POST]
+
++ Response 405 (application/json)
+  + Attributes (Method Not Allowed)
+
+
+## Instructor Resource [/instructors/{id}]
+
+A single instructor resource.
+
++ Parameters
+  + `id`: `c3aa832f-ee96-4c48-9104-cf6d61f2dd93` (string, required) - The ID of the instructor (in UUID v4)
+
+### Get single instructor resource [GET]
+
++ Response 200 (application/json)
+  + Attributes (Instructor Get Resource)
+
++ Response 404 (application/json)
+  + Attributes (Not Found)
+
++ Response 500 (application/json)
+  + Attributes (Internal Server Error)
+
+### Update single instructor resource [PUT]
+
++ Response 405 (application/json)
+  + Attributes (Method Not Allowed)
+
+### Delete single instructor resource [DELETE]
+
++ Response 405 (application/json)
+  + Attributes (Method Not Allowed)
+
+
+# Data Structures
+
+### Classes
+
+## Class Get Collection (object)
+
++ `meta` (Meta Get All)
++ `data` (array[Class Model]) - An array of class resources
+
+## Class Get Resource (object)
+
++ `meta` (object)
++ `data` (Class Model)
+
+## Class Model
+
++ `id`: `c3aa832f-ee96-4c48-9104-cf6d61f2dd93` (string) - The ID of the class (in UUID v4)
+    + Default: `gen_random_uuid()`
++ `class_type_id`: `ce10981e-c9b6-42c7-80a9-33bd3f1b9923` (string, required) - The ID of the class type (in UUID v4)
++ `instructor_id`: `4a25dc1d-b094-40a4-a3ed-6a6d785977bf` (string, required) - The ID of the instructor (in UUID v4)
++ `region_id`: `42bacc9b-d8b4-4ef6-948c-81cd58d5dc6b` (string, required) - The ID of the region (in UUID v4)
++ `room_id`: `8554acb2-2c55-4748-9674-a9d4e71dfa27` (string, required) - The ID of the room (in UUID v4)
++ `studio_id`: `9e25c153-0056-40d8-992b-7e32ab3b73d3` (string, required) - The ID of the studio (in UUID v4)
++ `bookable`: `false` (boolean, optional) - A boolean value indicating if the class is bookable
+    + Default: `false`
++ `theme`: `Hip Hop Thursday` (string, required) - The theme of the class
++ `overrides` (object, optional) - A JSON object containing class-level override values
+    - `previous_id`: `0` (number, optional) - The numerical ID of the corresponding class in the soul-cycle-site database
+        + Default: `0`
++ `start_time`: `2018-03-10T07:45:00.000Z` (string, optional) - Timestamp (in UTC) when the class starts
+    + Default: `NOW()`
++ `created_at`: `2018-03-08T01:53:46.692Z` (string, optional) - Timestamp (in UTC) when the class was created
+    + Default: `NOW()`
++ `updated_at`: `2018-03-08T01:49:06.798Z` (string, optional) - Timestamp (in UTC) when the class was updated
+    + Default: `NOW()`
++ `class_type` (Class Type Model) - The class type of the class
++ `instructor` (Instructor Model) - The instructor of the class
+
+
+### Class Types
+
+## Class Type Get Collection (object)
+
++ `meta` (Meta Get All)
++ `data` (array[Class Type Model]) - An array of class type resources
+
+## Class Type Get Resource (object)
+
++ `meta` (object)
++ `data` (Class Type Model)
+
+## Class Type Model (object)
+
++ `id`: `ce10981e-c9b6-42c7-80a9-33bd3f1b9923` (string) - The ID of the class type (in UUID v4)
+    + Default: `gen_random_uuid()`
++ `title`: `SoulCycle` (string, required) - The title of the class type
++ `series_debit`: `1` (number, optional) - The series_debit amount for the class type
+    + Default: `0`
++ `duration`: `45` (number, optional) - The class duration in minutes
+    + Default: `0`
++ `type`: `annex` (enum, optional) - One of class types
+    - `cycle`
+    - `annex`
+    + Default: `cycle`
++ `overrides` (object, optional) - A JSON object containing class type-level override values
+    - `previous_id`: `0` (number, optional) - The numerical ID of the corresponding class type in the soul-cycle-site database
+        + Default: `0`
++ `created_at`: `2018-03-08T01:53:46.692Z` (string, optional) - Timestamp (in UTC) when the class was created
+    + Default: `NOW()`
++ `updated_at`: `2018-03-08T01:49:06.798Z` (string, optional) - Timestamp (in UTC) when the class was updated
+    + Default: `NOW()`
+
+
+### Instructors
+
+## Instructor Get Collection (object)
+
++ `meta` (Meta Get All)
++ `data` (array[Instructor Model]) - An array of instructor resources
+
+## Instructor Get Resource (object)
+
++ `meta` (object)
++ `data` (Instructor Model)
+
+## Instructor Model (Instructor Create/Update Model)
+
++ `id`: `4a25dc1d-b094-40a4-a3ed-6a6d785977bf` (string) - The ID of the instructor (in UUID v4)
+    + Default: `gen_random_uuid()`
++ `created_at`: `2018-03-18T17:17:40.016Z` (string, optional) - Timestamp (in UTC) when the instructor was created
+    + Default: `NOW()`
++ `updated_at`: `2018-03-18T17:17:40.016Z` (string, optional) - Timestamp (in UTC) when the instructor was last updated
+    + Default: `NOW()`
+
+## Instructor Create/Update Model (object)
+
++ `first_name`: `john` (string, required) - The first name of the instructor
++ `last_name`: `snu` (string, required) - The last name of the instructor
++ `profile_image_path`: `/file/path/image.png` (string, required) - A path to the image of the instructor
++ `overrides` (object, optional) - A JSON object containing instructor-level override values
+    - `previous_id`: `0` (number, optional) - The numerical ID of the corresponding instructor in the soul-cycle-site database
+        + Default: `0`
+    - `tier`: `0` (number, required) - The "tier" of the instructor, which may influence the price-per-spot of their classes
+        + Default: `0`
+
+
+### Health endpoints
+
+## Health Data (object)
+
++ `uptime`: `8000` (number) - The number of seconds the application has been running
+
+## Ready Data (Health Data)
+
++ `service`: `ok` (string) - Message indicating the health of the application
++ `postgres`: `ok` (string) - Message indicating the PostgreSQL database is usable
+
+## Ready Success (object)
+
++ `meta` (object)
++ `data` (Ready Data)
+
+## Ready Failure (object)
+
++ `meta` (object)
++ `data` (Ready Data)
+    - `postgres`: `error` (string) - Message indicating the PostgreSQL database is not usable
+
+## Health Success (object)
+
++ `meta` (object)
++ `data` (Health Data)
+
+## Version Success (object)
+
++ `meta` (object)
++ `data` (Health Data)
+    - `version`: `0.1.0` (string) - The release version of the application currently running
+
+
+### Metas
+
+## Meta Get All (object)
+
++ `count` (number) - The number of resources returned with the response
++ `total` (number) - The total number of objects available
+
+## Bad Request Error Meta (object)
+
++ `code`: 400 (number) - The status code of the error
+
+## Not Found Meta (object)
+
++ `code`: 404 (number) - The status code of the error
+
+## Method Not Allowed Meta (object)
+
++ `code`: 405 (number) - The status code of the error
+
+## Internal Server Error Meta (object)
+
++ `code`: 500 (number) - The status code of the error
+
+
+
+### Default responses
+
+## Bad Request (object)
+
++ `meta` (Bad Request Error Meta)
++ `errors` (array[Bad Request Errors], required) - An array of errors that occured with the request
+
+## Bad Request Errors (object)
+
++ `field`: `example_field` (string) - The field required by the endpoint that was determined to be missing
++ `message`: `A required field is missing from the request body.` (string) - The error message related to the field
+
+## Not Found (object)
+
++ `meta` (Not Found Meta)
+
+## Method Not Allowed (object)
+
++ `meta` (Method Not Allowed Meta)
+
+## Internal Server Error (object)
+
++ `meta` (Internal Server Error Meta, required)

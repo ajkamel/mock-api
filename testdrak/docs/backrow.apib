@@ -1,0 +1,570 @@
+FORMAT: 1A
+
+# BackRow API Documentation
+
+A RESTful API for translating Corporate Group Booking requests to Soul-Cycle-Site actions.
+
+In order to facilitate the making of reservations from a new external service into SCS we would like to build a smart bridge that will provide an interface into our database. The purpose of this bridge will be to accept requests from our new Corporate Bookings Service and assign those reservations to a specified rider.
+
+# Group Readiness
+
+Utility endpoints the represent health checks.
+
+## Ready [/ready]
+
+The ready endpoint provides information about connected services and can be used to determine if the service is considered "ready". It can be used by container schedulers to check if the service is ready to accept traffic.
+
+### Ready Check [GET]
+
++ Response 200 (application/json)
+  + Attributes (Ready Success)
+
++ Response 500 (application/json)
+  + Attributes (Ready Failure)
+
+
+## Health [/health]
+
+The health endpoint is similar to the ready endpoint in that it provides information about the health of the service, but skips the connected service checks. It can be used by container schedulers to check if the service is "reachable".
+
+### Health Check [GET]
+
++ Response 200 (application/json)
+  + Attributes (Health Success)
+
+
+## Version [/version]
+
+The version endpoint outputs the current **release version** of the application, as defined by an environment variable. This variable is present within the application's Dockerfile, and as normally updated as part of the release process.
+
+### Version Check [GET]
+
++ Response 200 (application/json)
+  + Attributes (Version Success)
+
+# Group Credits
+Resource that represents information about the credits available to a user by currency.
+
+## Credits [/credits?user_id={user_id}]
++ Parameters
+  + `user_id`: 1001 (number, required) - The user_id we want to retrieve credit information for.
+
+### Retrieve Credits [GET]
+
++ Response 200 (application/json)
+  + Attributes (Credits Get Collection)
+
++ Response 400 (application/json)
+  + Attributes (Bad Request)
+
++ Response 404 (application/json)
+  + Attributes (Not Found)
+
++ Response 500 (application/json)
+  + Attributes (Internal Server Error Meta)
+
+# Group Holds
+Resource that represents holds made on spots in a class. This will default to the "hold" (null user) until a purchase is complete from the consuming applications at which point it will be updated with the group (organization) rider id at the /bookings resource.
+
+## Hold Resources [/holds]
+A collection of hold resources.
+
+### Create a new hold [POST]
+This route will automatically get and insert `oauth_client_id`, `room_id`, `class_date` and `studio_id` in the SCS reservations table.
+
++ Request (application/json)
+  + Attributes (Hold Create/Update Model)
+
++ Response 201 (application/json)
+  + Attributes (Hold Get Collection)
+
++ Response 400 (application/json)
+  + Attributes (Bad Request)
+
++ Response 409 (application/json)
+  + Attributes (Conflict)
+
++ Response 500 (application/json)
+  + Attributes (Internal Server Error Meta)
+
+### Delete single hold [DELETE]
++ Request (application/json)
+  + Attributes (Reservation ID Model)
+
++ Response 200 (application/json)
+  + Attributes (Hold Delete Collection)
+
++ Response 404 (application/json)
+  + Attributes (Not Found)
+
++ Response 500 (application/json)
+  + Attributes (Internal Server Error Meta)
+
+# Group Bookings
+
+The /bookings endpoint takes a request body and attempts to get, update or delete a booking (reservation).
+
+## Booking Collection Resource [/bookings/?ids={ids}]
+Will get the selected status ("held", "booked", "claimed") for the booking(reservation) and respond with whether it is held, booked or claimed for all ids passed into the query parameter. The query parameter `ids` is required for this resource.
+
+### Get status of a booking [GET]
++ Parameters
+  + `ids`: '1,2,3' (string, required) - Comma separated list of IDs for which to get booking status for.
+
++ Response 200 (application/json)
+  + Attributes (Booking Get Collection)
+
++ Response 400 (application/json)
+  + Attributes (Bad Request)
+
++ Response 404 (application/json)
+  + Attributes (Not Found Empty)
+
++ Response 500 (application/json)
+  + Attributes (Internal Server Error Meta)
+
+
+## Single Booking Resource [/bookings/{id}]
+Will get the selected status ("held", "booked", "claimed") for the booking(reservation) and respond with whether it is held, booked or claimed.
+
+### Get status of a booking [GET]
++ Parameters
+  + `id`: 1001 (number, required) - The ID of the booking
+
++ Response 200 (application/json)
+  + Attributes (Single Booking Model)
+
++ Response 404 (application/json)
+  + Attributes (Not Found Empty)
+
++ Response 500 (application/json)
+  + Attributes (Internal Server Error Meta)
+
+## Booking Resource [/bookings]
+The /bookings endpoint takes a request body and attempts to get, update or delete a reservation.
+
+### Confirm bookings [PUT]
+Using this verb for the purposes of CGB should be to update the reservation with the Group User Id ( SCS rider_id ).  All fields specified in the example request are required. This should be used after purchase. All bookings should be sent as an array of bookings nested under `bookings` since most bookings will happen at once in addition to the `order` information. In our json example, we show city and state, however, we can accept up to five categories back from Avalara (state, county, city, special and country).
+
++ Request (application/json)
+  + Attributes (Booking Update Model)
+
++ Response 200 (application/json)
+  + Attributes (Booking Put Collection)
+
++ Response 400 (application/json)
+  + Attributes (Bad Request)
+
++ Response 404 (application/json)
+  + Attributes (Not Found Empty)
+
++ Response 409 (application/json)
+  + Attributes (Conflict Errors)
+
++ Response 500 (application/json)
+  + Attributes (Internal Server Error Meta)
+
+### Delete bookings [DELETE]
+Will delete a reservation which will move it to the reservations_deleted table via a built in trigger in SCS master database.  It will also update the SCS `order_items.balance_used_amount`, `order_items.balance_last_used_date`, `rider.first_ride` date, and `rider_attributes.first_time_annex` date based on the class type activity id.  This endpoint can accept multiple reservation_ids inside of the request array.
+
++ Request (application/json)
+  + Attributes (array[Booking Delete Model])
+
++ Response 204 (application/json)
+
++ Response 400 (application/json)
+  + Attributes (Bad Request Empty)
+
++ Response 404 (application/json)
+  + Attributes (Booking Delete Not Found)
+
++ Response 409 (application/json)
+  + Attributes (Booking Delete Conflict)
+
++ Response 500 (application/json)
+  + Attributes (Internal Server Error Meta)
+
+# Group Claims
+The /bookings/claim endpoint takes a request body and attempts to update a reservation with the rider who is going to claim a spot in a class using a confirmed booking.
+
+## Claim Resource [/bookings/claim]
+
+### Confirm a booking [PUT]
+
++ Request (application/json)
+  + Attributes (Booking Claim Update Model)
+
++ Response 200 (application/json)
+  + Attributes (Booking Claim Response)
+
++ Response 400 (application/json)
+  + Attributes (Bad Request Empty)
+
++ Response 404 (application/json)
+  + Attributes (Claims Not Found)
+
++ Response 409 (application/json)
+  + Attributes (Claims Conflict)
+
++ Response 500 (application/json)
+  + Attributes (Internal Server Error Meta)
+
+
+# Group Legal-Agreement
+The /legal-agreements/regions endpoint takes a request parameter of `id` which is required at this time. It will return the most up-to-date legal agreement for that region. This route will now also require a query parameter of `type` ( *tc, pp, coppa* ) and `format` ( *html, json, pdf* ) and will respond in kind with the appropriate format.
+
+**Note:** format PDF will return a readable stream with headers of `Content-Type: application/pdf` and the `Content-Length` of the response.
+
+Additionally there is only a Terms and Conditions (tc) versions of PDF's all other requests for any other type of pdf will be invalid.
+
+## Legal-Agreement [/legal-agreements/regions]
+Used to get Legal Agreements in various formats.
+
+## Legal-Agreement Resource [GET/legal-agreements/regions/{id}?type={type}&format={format}]
+Used to get Legal Agreements by Region ID
+
++ Parameters
+  + id: 1 (number, required) - The region in which to fetch the legal agreements from
+  + type: tc (string, required) - The type of policy requested (tc, pp, coppa)
+  + format: json (string, required) - The format of the response one of (html, json, pdf)
+
++ Response 200 (application/json)
+  + Attributes (Legal Success)
+
++ Response 400 (application/json)
+  + Attributes (Bad Request Legal)
+
++ Response 404 (application/json)
+  + Attributes (Invalid Request Legal)
+
++ Response 500 (application/json)
+  + Attributes (Internal Server Error Meta)
+
+
+# Data Structures
+### Credits Get Collection
++ `meta` (Meta Get All)
++ `data` (array[Credit Model])
+
+## Credit Model
+
++ `currency_id`: 1 (number) - The ID of the currency
++ `currency_iso_code`: 10 (number) - Iso code of the currency
++ `available`: 8 (number) - Total amount of credits available for the user
+
+### Holds
+
+## Hold Get Collection (object)
++ `meta` (Meta Get All)
++ `data` (array[Hold Model])
+
+## Hold Delete Collection (object)
++ `meta` (Meta Get All)
++ `data` (array[Hold Delete Model])
+
+## Hold Model
+
++ `id`: 1001 (number) - The ID of the hold
++ `oauth_client_id`: 10 (number) - BackRows default id
++ `class_id`: 922178 (number) - Id of the held class
++ `spot_id`: 35 (number) - Id of the held spot/seat
++ `room_id`: 2 (number) - Id of the room
++ `ride_date`: `2018-09-15T13:30:00.000Z` (string) - Timestamp in local time of the acctual ride
++ `studio_id`: 2 (number) - Id of the studio
++ `created_at`: `2018-03-18T17:17:40.016Z` (string) - Timestamp (in UTC) when the hold was created
+    + Default: `NOW()`
+
+## Hold Delete Model
+
++ `id`: 1001 (number) - The ID of the hold
++ `oauth_client_id`: 10 (number) - BackRows default id
++ `class_id`: 922178 (number) - Id of the held class
++ `spot_id`: 35 (number) - Id of the held spot/seat
++ `room_id`: 2 (number) - Id of the room
++ `ride_date`: `2018-09-15T13:30:00.000Z` (string) - Timestamp in local time of the acctual ride
++ `studio_id`: 2 (number) - Id of the studio
++ `created_at`: `2018-03-18T17:17:40.016Z` (string) - Timestamp (in UTC) when the hold was created
+    + Default: `NOW()`
+
+## Reservation ID Model
+
++ `reservation_id`: 1001 (number) - The ID of the hold (in UUID v4)
+
+## Hold Create/Update Model (object)
+
++ `class_id`: `1000` (string, required) - The ID of a class
++ `spot_id`: `12` (string, required) - The ID of a spot
+
+### Bookings
+
+## Single Booking Model
++ `meta` (Meta Get All)
++ `data` (Booking Model)
+
+## Booking Get Collection (object)
++ `meta` (Meta Get Count)
++ `data` (array[Booking Model])
+
+## Booking Put Collection (object)
++ `meta` (Meta Get Count)
++ `data` (array[Booking Model])
+
+## Booking Delete Collection (object)
++ `meta` (Meta Get All)
++ `data` (array[Booking Delete Model])
+
+## Booking Claim Response
++ `meta` (Meta Get All)
++ `data` (Booking Delete Model)
+
+## Booking Model
++ `reservation_id`: 1001 (number) - The ID of the reservation
++ `status`: `booked` (string) - Indicates the status of the booking
++ `user_id`: 34 (number) - Corresponds to the SCS `rider_id`
+
+## Booking Update Model
++ `order` (object)
+    + `user_id`: 34 (number) - Corresponds to the Group (Organization) Rider Id
+    + `currency_id`: 1 (number)
+    + `credits` (object)
+      + `applied`: 1 (number) - Number of credits to apply Send zero if none
+    + `purchase` (object) - This object become optional if there are enough credits to cover booking
+        + `subtotal`: 2000.000000 (number) - This is the subtotal for all bookings
+        + `tax` (object)
+            + `total`: 200.100000 (number)
+            + `state` (object)
+                + `amount`: 100.100000 (number)
+                + `percent`: 0.050000 (number)
+                + `location`: `NEW YORK CITY` (string)
+                + `zone`: `NEW YORK CITY` (string)
+                + `zip`: 10014 (string)
+                + `type`: `NY CITY TAX`(string)
+            + `city` (object)
+                + `amount`: 100.000000 (number)
+                + `percent`: 0.050000 (number)
+                + `location`: `NEW YORK CITY` (string)
+                + `zone`: `NEW YORK CITY` (string)
+                + `zip`: 10014 (string)
+                + `type`: `NY CITY TAX`(string)
+        + `total`: 2100.000000 (number)
+        + `cc_type`: `VISA` (string)
+        + `cc_last_4`: `3465` (string)
+        + `studio_id` 1200 (number) - Studio that is used to calculate tax against
+        + `authnet_transaction_id`: 6755051998 (number)
++ `bookings`(array)
+    + (object)
+        + `reservation_id`: 1001 (number) - The ID of the reservation
+        + `user_id`: 34 (number) - Corresponds to the SCS `rider_id`
+        + `cost`: 10.000000 (number) - Should be sent to the nearest 6th decimal place, Corresponds to dollar_expense
+        + `cost_currency_id`: 1 (number) - Corresponds to `dollar_expense_currency_id`
+    + (object)
+        + `reservation_id`: 1002 (number) - The ID of the reservation
+        + `user_id`: 34 (number) - Corresponds to the SCS `rider_id`
+        + `cost`: 15.000000 (number) - Should be sent to the nearest 6th decimal place, Corresponds to dollar_expense
+        + `cost_currency_id`: 1 (number) - Corresponds to `dollar_expense_currency_id`
+
+## Booking Delete Model
++ `reservation_id`: 1001 (number) - The ID of the reservation
+
+## Booking Claim Update Model (object)
++ `reservation_id`: 1001 (number) - The ID of the reservation
++ `user_id`: 34 (number) - Corresponds to the SCS `rider_id`
+
+### Booking Delete Responses
+
+## Booking Delete Not Found
+
++ `meta` (Not Found Meta)
++ `errors` (Booking Delete Not Found Errors) - An array of errors that occurred with the request
+
+## Booking Delete Not Found Errors (array)
+
++ (object)
+    + `status`: 404 (number) - The status code of the error.
+    + `message`: `No bookings were found.  Please try again.` (string)
+
+## Booking Delete Conflict (object)
+
++ `meta` (Conflict Meta)
++ `errors` (Booking Delete Conflict Errors) - An array of errors that occurred with the request
+
+## Booking Delete Conflict Errors(array)
+
++ (object)
+    + `status`: 409 (number) - The status code of the error
+    + `id`: `1` (number) - The reservation id in the request that resulted in this error
+    + `message`: `This id was not booked via Backrow. You cannot delete it.` (string)
+
++ (object)
+    + `status`: 409 (number) - The status code of the error
+    + `id`: `1` (number) - The reservation id in the request that resulted in this error
+    + `message`: `This id is in held status. It must be deleted via DEL /holds.` (string)
+
+### Claims
+
+### Health endpoints
+
+## Health Data (object)
+
++ `uptime`: `8000` (number) - The number of seconds the application has been running
+
+## Ready Data (Health Data)
+
++ `service`: `ok` (string) - Message indicating the health of the application
++ `mysql`: `ok` (string) - Message indicating the MySQL database is usable
+
+## Ready Success (object)
+
++ `meta` (object)
++ `data` (Ready Data)
+
+## Ready Failure (object)
+
++ `meta` (object)
++ `data` (Ready Data)
+    - `mysql`: `error` (string) - Message indicating the MySQL database is not usable
+
+## Health Success (object)
+
++ `meta` (object)
++ `data` (Health Data)
+
+## Version Success (object)
+
++ `meta` (object)
++ `data` (Health Data)
+    - `version`: `0.1.0` (string) - The release version of the application currently running
+
+### Metas
+
+## Meta Get All (object)
+
+## Meta Get Count (object)
++ `count`: 1 (number) - Represents the number of confirmed bookings should match number requested
+
+## Bad Request Error Meta (object)
+
++ `code`: 400 (number) - The status code of the error
+
+## Not Found Meta (object)
+
++ `code`: 404 (number) - The status code of the error
+
+## Method Not Allowed Meta (object)
+
++ `code`: 405 (number) - The status code of the error
+
+## Conflict Meta (object)
++ `code`: 409 (number) - The status code of the error
+
+## Internal Server Error Meta (object)
+
++ `code`: 500 (number) - The status code of the error
+
+### Legal endpoints
+
+## Legal Data (object)
++ `id`: `13` (number) - The ID of the legal agreement
++ `tc_html_version`: `<html>Some text</html>` (string) - The Terms and Conditions for new riders in html format can also return as ( tc_json_version, pp_html_version, pp_json_version, coppa_html_version, coppa_json_version )
+
+## Legal Success (object)
+
++ `meta` (object)
++ `data` (Legal Data)
+
+## Bad Request Legal (object)
+
++ `status`: 404 (number) - The status code of the error.
++ `message`: `A valid 'region_id' is required.` (string) - The error message related to the field
+
+## Invalid Request Legal (object)
+
++ `status`: 400 (number) - The status code of the error.
++ `message`: `GET param field 'region_id' is required and must not be empty.` (string) - The error message related to the field
+
+### Default responses
+
+## Bad Request (object)
+
++ `meta` (Bad Request Error Meta)
++ `errors` (array[Bad Request Errors], required) - An array of errors that occurred with the request
+
+## Bad Request Empty (object)
+
++ `meta` (Bad Request Error Meta)
++ `errors` (array[], required) - An array of errors that occurred with the request
+
+## Bad Request Errors (object)
+
++ `status`: 400 (number) - The status code of the error.
++ `message`: `A required field is missing or invalid from the request body.` (string) - The error message related to the field
+
+## Conflict (object)
+
++ `meta` (Conflict Meta)
++ `errors` (Conflict Errors) - The status code of the error
+
+## Conflict Errors (array)
+
++ (object)
+    + `status`: 409 (number)
+    + `message`: `This will contain a custom message about the conflicting request` (string)
+
+## Not Found (object)
+
++ `meta` (Not Found Meta)
++ `errors` (array[Not Found Errors], required) - An array of errors that occurred with the request
+
+## Not Found Empty (object)
+
++ `meta` (Not Found Meta)
++ `errors` (array[], required) - An empty array
+
+## Not Found Errors (object)
+
++ `status`: 404 (number) - The status code of the error.
++ `message`: `This will contain a custom error message around the missing resource` (string) - The error message related to the field
+
+## Method Not Allowed (object)
+
++ `meta` (Method Not Allowed Meta)
+
+## Internal Server Error (object)
+
++ `meta` (Internal Server Error Meta, required)
+
+### Claims Responses
+
+## Claims Not Found (object)
+
++ `meta` (Not Found Meta)
++ `errors` (Claims Not Found Errors) - An array of errors that occurred with the request
+
+## Claims Not Found Errors (array)
+
++ (object)
+    + `status`: 404 (number) - The status code of the error.
+    + `message`: `It looks like that user or reservation does not exist. Please try again.` (string)
+
++ (object)
+    + `status`: 404 (number) - The status code of the error
+    + `message`: `This reservation is not associated with a group` (string)
+
+## Claims Conflict (object)
+
++ `meta` (Conflict Meta)
++ `errors` (Claims Conflict Errors) - The status code of the error
+
+## Claims Conflict Errors (array)
+
++ (object)
+    + `status`: 409 (number)
+    + `message`: The group owner cannot claim a spot that is in `booked status` (string)
+
++ (object)
+    + `status`: 409 (number)
+    + `message`: `The reservation is already claimed by this rider` (string)
+
++ (object)
+    + `status`: 409 (number)
+    + `message`: `The reservation is not in a booked state` (string)
