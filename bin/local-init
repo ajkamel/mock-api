@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+
+set -e
+
+# Set BIN_ROOT, the location of the `bin` directory
+readonly BIN_ROOT=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
+
+# Set APP_ROOT, the location of the main application directory
+readonly APP_ROOT=$(cd $BIN_ROOT/../ && pwd)
+
+# Setup input variables
+PODIUM_LOCAL_ROOT="${PODIUMPATH:-}"
+
+# Main functionality of the script
+main() {
+
+  echo_yellow "Setting up Mock-API Service repo..."
+
+  (
+    # Make sure script is running from the main application directory
+    cd $APP_ROOT
+
+    echo_yellow "${TAB}Building docker images with docker-compose..."
+
+    # Build docker images
+    docker-compose build
+
+    echo_yellow "${TAB}Installing node dependencies..."
+
+    # Install node dependencies
+    docker-compose run --rm mock-api npm i
+
+    echo_yellow "${TAB}Starting containers with docker-compose..."
+
+    # Start docker containers
+    docker-compose up -d
+  )
+
+  echo_green "Mock-API repo setup successfully!\n"
+}
+
+# Function that outputs usage information
+usage() {
+  cat <<EOF
+Usage: $BIN_ROOT/$(basename $0) <options>
+Script used to initialize this application
+Options:
+  -b (required)     The full file path to the 'podium-local' base directory
+                    NOTE: Will attempt to use the value of the "PODIUMPATH"
+                    environment variable
+                    NOTE: This allows this setup script to use shared scripts
+                    contained in 'podium-local'
+  -d                Setup all external dependencies
+  -h                Print this message and quit
+EOF
+  exit 0
+}
+
+# Parse input options
+while getopts ":b:dh-:" opt; do
+  case "$opt" in
+    b) PODIUM_LOCAL_ROOT=$OPTARG;;
+    d) EXT_DEP=true;;
+    h) usage;;
+    \?) echo "Invalid option: -$OPTARG." && usage;;
+    :) echo >&2 "Option -$OPTARG requires an argument." && exit 1;;
+  esac
+done
+
+# Verify input
+[ -z "$PODIUM_LOCAL_ROOT" ] && echo "Missing script options." && usage
+
+# Include shell helpers
+source $PODIUM_LOCAL_ROOT/bin/utils/shell-helpers.sh
+
+# Execute main functionality
+main

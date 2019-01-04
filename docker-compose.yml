@@ -1,0 +1,15 @@
+version: '3'
+services:
+  mock-api:
+    container_name: mock-api
+    build: .
+    command: ["npm", "run-script", "start-dev"]
+    ports:
+      - "3000:3000"
+    volumes:
+      - ${PWD}:/var/www:delegated
+    networks:
+      - podium_network
+networks:
+  podium_network:
+    external: true
