@@ -93,4 +93,6 @@ const HealthController = function HealthController() {
 
 const healthController = HealthController();
 
-export { healthController, Responses as healthResponses, StatusCodeError, StatusCodeOk };
+export {
+  healthController, Responses as healthResponses, StatusCodeError, StatusCodeOk,
+};

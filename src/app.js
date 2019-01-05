@@ -1,35 +1,14 @@
 import bodyParser from 'body-parser';
 import express from 'express';
-import drakov from 'drakov';
 
 import config from './helpers/config_helper';
-import errorController from './controllers/errors';
 import routes from './routes';
 
 const app = express();
 
 app.set('port', config.application.port);
-app.use(bodyParser.json({ limit: config.application.max_request_body }));
+// app.use(bodyParser.json({ limit: config.application.max_request_body }));
 app.use(bodyParser.urlencoded({ extended: false }));
-
-
-const { middleware, requestUtils } = drakov;
-
-const argv = {
-  sourceFiles: '../docs/backrow.apib',
-  method: ['PATCH', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-};
-
-app.use(requestUtils.getBody);
-
-middleware.init(app, argv, (err, middlewareFunction) => {
-  if (err) {
-    throw err;
-  }
-
-  app.use(middlewareFunction);
-});
-
 
 // // Set up cors middleware
 // app.use((req, res, next) => {
@@ -45,6 +24,6 @@ Object.keys(routes).forEach((route) => {
 });
 
 // Handle 404s
-app.use((req, res) => errorController.notFound(req, res));
+// app.use((req, res) => errorController.notFound(req, res));
 
 export default app;
