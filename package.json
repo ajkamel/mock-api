@@ -11,13 +11,19 @@
   "main": "server.js",
   "scripts": {
     "cover": "nyc npm test && nyc report --reporter=text-lcov > coverage.lcov && codecov",
-    "lint": "eslint --ignore-pattern 'node_modules/**' --ignore-pattern 'test/**' --ignore-pattern 'dist/**' --format codeframe .",
-    "lint-fix": "eslint --fix --ignore-pattern 'node_modules/**' --ignore-pattern 'test/**' --ignore-pattern 'dist/**' --format codeframe .",
+    "clean": "rm -rf dist",
+    "lint": "eslint --format codeframe .",
+    "lint-fix": "eslint --fix --format codeframe .",
     "start-dev": "pm2-docker start pm2.config.json",
     "test": "mocha test/unit/ --require babel-register --require babel-polyfill --recursive",
-    "build": "babel src --out-dir ./dist --source-maps",
+    "build": "npm run clean && babel src --out-dir ./dist --source-maps",
     "serve": "node ./dist/server.js"
   },
+  "eslintIgnore": [
+    "test/**",
+    "dist/**",
+    "node_modules/**"
+  ],
   "eslintConfig": {
     "extends": "airbnb",
     "env": {
