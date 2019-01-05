@@ -1,0 +1,53 @@
+language: node_js
+
+node_js:
+  - "10.15.0"
+
+sudo: required
+
+cache:
+  - "$HOME/google-cloud-sdk/"
+
+env:
+  global:
+    - APP_NAME=mock-api
+    - CI_TOOLS_BASE=https://raw.githubusercontent.com/soulcycle/ci-tools
+    - CI_TOOLS_VERSION=$(curl $CI_TOOLS_BASE/master/versions/stable.txt)
+
+before_install:
+  - curl $CI_TOOLS_BASE/$CI_TOOLS_VERSION/gcr/scripts.txt | sed "s/{%version%}/$CI_TOOLS_VERSION/" | wget -P /tmp/build/ -i -
+  - chmod -R +x /tmp/build/*.sh
+  - source /tmp/build/env.sh
+  - /tmp/build/ensure-gcloud-installed.sh
+  - source $HOME/google-cloud-sdk/path.bash.inc
+  - /tmp/build/gcr-login.sh
+
+install:
+  - docker build -t $DOCKER_TAG_BASE:$COMMIT_HASH .
+
+script:
+  - docker run $DOCKER_TAG_BASE:$COMMIT_HASH npm run lint
+  - docker run $DOCKER_TAG_BASE:$COMMIT_HASH npm test
+  - docker run -e "CODECOV_TOKEN=${CODECOV_TOKEN}" $DOCKER_TAG_BASE:$COMMIT_HASH npm run cover
+
+after_success: >-
+  if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
+    /tmp/build/pr-build.sh
+  else
+    /tmp/build/push-build.sh
+  fi;
+
+deploy:
+  - provider: script
+    script: /tmp/build/master-build.sh
+    on:
+      branch: master
+  - provider: script
+    script: /tmp/build/semver-build.sh
+    on:
+      tags: true
+      condition: $TRAVIS_TAG =~ [0-9]+\.[0-9]+\.[0-9]+
+
+notifications:
+  slack:
+    rooms:

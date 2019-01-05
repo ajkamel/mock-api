@@ -1,1 +1,17 @@
+# Node ignores
 node_modules
+
+# Distribution
+dist/**/*
+
+# NPM ignores
+npm-debug.log
+
+# Test Coverage
+test/coverage
+coverage
+*.lcov
+.nyc_output/
+
+# Dev configs
+config/config.js

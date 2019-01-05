@@ -1,0 +1,15 @@
+{
+  "apps": [
+    {
+      "name": "main-app",
+      "script": "src/server.js",
+      "exec_interpreter": "babel-node",
+      "watch": true,
+      "ignore_watch": ["node_modules", "bin", ".git"],
+      "watch_options": {
+        "useFsEvents": true,
+        "usePolling": true
+      }
+    }
+  ]
+}
