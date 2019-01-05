@@ -5,7 +5,7 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 
 // Relative imports
-import { healthController, healthResponses } from '../../../controllers/health';
+import { healthController, healthResponses } from '../../../src/controllers/health';
 
 // Set up chai.should()
 chai.should();

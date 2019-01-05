@@ -1,19 +1,11 @@
-import '@babel/polyfill';
-import drakov from 'drakov';
+import { middleware, requestUtils } from 'drakov';
 
 import app from './app';
+import config from './helpers/config_helper';
 import logger from './utils/logger';
 
-const port = app.get('port');
-
-const { middleware, requestUtils } = drakov;
-
-const drakovOptions = {
-  sourceFiles: './blueprints/*.apib',
-  serverPort: port,
-  method: ['GET', 'PATCH', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  debugMode: true,
-};
+const { drakovOptions } = config;
+const { port } = config.application;
 
 app.use(requestUtils.getBody);
 

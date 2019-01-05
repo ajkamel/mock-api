@@ -12,12 +12,10 @@ const level = program.debug ? 'debug' : 'info';
  * @param {Object} options - these are different parts of data from the log message
  * @return {String} returns the assembled log message formated correctly
  */
-const currentFormat = printf((options) => {
-  return `${options.timestamp} ${options.level}: ${options.message}`;
-});
+const currentFormat = printf(options => `${options.timestamp} ${options.level}: ${options.message}`);
 
 const logger = createLogger({
-  'level': level,
+  level,
   format: combine(
     timestamp(), // customize the date format here
     colorize(), // customize the color of the log levels here

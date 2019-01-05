@@ -2,8 +2,8 @@ import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 
-import BaseController from '../../../../controllers/utils/controller_factory';
-import ResponseHelper from '../../../../helpers/response_helper';
+import BaseController from '../../../../src/controllers/utils/controller_factory';
+import ResponseHelper from '../../../../src/helpers/response_helper';
 
 // Get expect function
 const { expect } = chai;

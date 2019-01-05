@@ -8,7 +8,7 @@ let config = {};
 
 // Example config file path and possible local developer config file path
 const configFileExample = path.join(__dirname, '../', 'config/config.js.example');
-// config file from commandline argument if provided
+// config file from command line argument if provided
 const configFile = program.config || path.join(__dirname, '../', 'config/config.js');
 
 /*

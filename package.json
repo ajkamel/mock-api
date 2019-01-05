@@ -2,6 +2,7 @@
   "name": "mock-api",
   "version": "0.1.0",
   "description": "Podium Mock API Service",
+  "private": true,
   "contributors": [
     {
       "name": "Ash Kamel",
@@ -9,15 +10,74 @@
     }
   ],
   "main": "server.js",
+  "engines": {
+    "node": "10.15.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://soul-cycle.com"
+  },
+  "bugs": {
+    "url": "https://soul-cycle.com"
+  },
+  "homepage": "https://soul-cycle.com",
   "scripts": {
     "cover": "nyc npm test && nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "clean": "rm -rf dist",
     "lint": "eslint --format codeframe .",
     "lint-fix": "eslint --fix --format codeframe .",
     "start-dev": "pm2-docker start pm2.config.json",
-    "test": "mocha test/unit/ --require babel-register --require babel-polyfill --recursive",
+    "test": "mocha test",
     "build": "npm run clean && babel src --out-dir ./dist --source-maps",
     "serve": "node ./dist/server.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "commander": "^2.19.0",
+    "deep-extend": "^0.6.0",
+    "drakov": "github:ajkamel/drakov#exports-requestutils",
+    "express": "^4.16.4",
+    "lodash": "^4.17.11",
+    "path": "^0.12.7",
+    "winston": "^3.1.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/node": "^7.2.2",
+    "@babel/preset-env": "^7.2.3",
+    "@babel/register": "^7.0.0",
+    "babel-eslint": "^10.0.1",
+    "chai": "^4.2.0",
+    "codecov": "^3.1.0",
+    "eslint": "^5.11.1",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "eslint-plugin-react": "^7.12.2",
+    "mocha": "^6.0.0-1",
+    "moxios": "^0.4.0",
+    "nyc": "^13.1.0",
+    "pm2": "^3.2.4",
+    "sinon": "^7.2.2",
+    "sinon-chai": "^3.3.0"
+  },
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "useBuiltIns": "entry",
+          "targets": {
+            "node": "current"
+          }
+        }
+      ]
+    ]
+  },
+  "mocha": {
+    "require": "@babel/register",
+    "recursive": true
   },
   "eslintIgnore": [
     "test/**",
@@ -31,6 +91,7 @@
       "mocha": true,
       "node": true
     },
+    "parser": "babel-eslint",
     "rules": {
       "max-len": [
         "error",
@@ -74,50 +135,5 @@
         }
       ]
     }
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://soul-cycle.com"
-  },
-  "license": "UNLICENSED",
-  "private": true,
-  "bugs": {
-    "url": "https://soul-cycle.com"
-  },
-  "homepage": "https://soul-cycle.com",
-  "engines": {
-    "node": "10.15.0"
-  },
-  "dependencies": {
-    "@babel/polyfill": "^7.2.5",
-    "body-parser": "^1.18.3",
-    "commander": "^2.19.0",
-    "deep-extend": "^0.6.0",
-    "drakov": "^1.0.4",
-    "express": "^4.16.4",
-    "lodash": "^4.17.11",
-    "path": "^0.12.7",
-    "winston": "^3.1.0"
-  },
-  "devDependencies": {
-    "@babel/cli": "^7.2.3",
-    "@babel/core": "^7.2.2",
-    "@babel/node": "^7.2.2",
-    "@babel/preset-env": "^7.2.3",
-    "@babel/register": "^7.0.0",
-    "babel-eslint": "~8.2.2",
-    "chai": "^4.2.0",
-    "codecov": "^3.1.0",
-    "eslint": "^5.11.1",
-    "eslint-config-airbnb": "^17.1.0",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-jsx-a11y": "^6.1.2",
-    "eslint-plugin-react": "^7.12.2",
-    "mocha": "^5.2.0",
-    "moxios": "^0.4.0",
-    "nyc": "^13.1.0",
-    "pm2": "^3.2.4",
-    "sinon": "^7.2.2",
-    "sinon-chai": "^3.3.0"
   }
 }

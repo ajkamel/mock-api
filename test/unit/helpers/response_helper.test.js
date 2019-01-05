@@ -2,8 +2,8 @@ import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 
-import logger from '../../../utils/logger';
-import ResponseHelper from '../../../helpers/response_helper';
+import logger from '../../../src/utils/logger';
+import ResponseHelper from '../../../src/helpers/response_helper';
 
 // Set up chai.should()
 chai.should();
