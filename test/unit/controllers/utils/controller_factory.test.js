@@ -24,7 +24,7 @@ describe('Controller Factory Class', () => {
 
   before(() => {
     // Create sinon sandbox
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
   });
 
   beforeEach(() => {

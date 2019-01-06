@@ -17,7 +17,7 @@ describe('Response Helper', () => {
 
   before(() => {
     // Create sinon sandbox
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
   });
 
   beforeEach(() => {
