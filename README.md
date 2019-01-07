@@ -4,10 +4,15 @@ An API that mocks our api services
 
 ---
 
-
 ## Installation and use
 
 This repository is meant to be run within the [podium-local](https://github.com/soulcycle/podium-local) application environment. It contains a `local-init` setup script (see [this README section](https://github.com/soulcycle/podium-local#application-initialization-and-the-local-init-script) for more information on how this works) that handles installing node modules, spinning up docker-compose containers, and setting up a local aggregate database in the shared Podium PostgreSQL database container.
+
+To update npm packages we should ensure that we run our installs through our docker container.
+
+```bash
+docker-compose run mock-api npm install
+```
 
 ## Testing
 

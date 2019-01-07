@@ -15,7 +15,7 @@ middleware.init(app, drakovOptions, (err, middlewareFunction) => {
   }
 
   app.use(middlewareFunction);
-  const server = app.listen(drakovOptions.serverPort);
+  const server = app.listen(port);
 
   // Handle server errors
   const onError = (e) => {

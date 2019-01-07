@@ -9,7 +9,6 @@ const config = {
   },
   drakovOptions: {
     sourceFiles: './blueprints/*.apib',
-    serverPort: parseInt(process.env.MOCK_API_PORT || 3000, 10),
     method: ['GET', 'PATCH', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     debugMode: false,
     stealthmode: false,

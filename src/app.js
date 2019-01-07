@@ -1,12 +1,12 @@
 import bodyParser from 'body-parser';
 import express from 'express';
 
-import config from './helpers/config_helper';
+// import config from './helpers/config_helper';
 import routes from './routes';
 
 const app = express();
 
-app.set('port', config.application.port);
+// app.set('port', config.application.port);
 // app.use(bodyParser.json({ limit: config.application.max_request_body }));
 app.use(bodyParser.urlencoded({ extended: false }));
 
